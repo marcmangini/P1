@@ -2,6 +2,7 @@ package fa.dfa;
 
 import fa.State;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DFAState extends State {
 
@@ -33,5 +34,13 @@ public class DFAState extends State {
      */
     public DFAState getTransition(char symb){
         return transitions.get(symb);
+    }
+
+     /**
+      * Getter for all transitions.
+      * @return
+      */
+    public Map<Character, DFAState> getTransitions() {
+        return transitions;
     }
 }
