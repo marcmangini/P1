@@ -83,6 +83,6 @@ public class DFA implements DFAInterface{
 
     @Override
     public boolean isStart(String name) {
-        return name.equals(startState);
+        return startState != null && startState.equals(name);
     }
 }
