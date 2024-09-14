@@ -1,10 +1,26 @@
 package fa.dfa;
 
 import fa.State;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class DFA implements DFAInterface{
+
+    private Set<String> states;
+    private Set<Character> alphabet;
+    private String startState;
+    private Set<String> finalStates;
+    private Map<String, Map<Character, String>> transitions;
+    
+    public DFA(){
+        this.states = new HashSet<>();
+        this.alphabet = new HashSet<>();
+        this.finalStates = new HashSet<>();
+        this.transitions = new HashMap<>();
+    }
+
     @Override
     public boolean addTransition(String fromState, String toState, char onSymb) {
         return false;
@@ -17,22 +33,32 @@ public class DFA implements DFAInterface{
 
     @Override
     public boolean addState(String name) {
-        return false;
+        return states.add(name);
     }
 
     @Override
     public boolean setFinal(String name) {
-        return false;
+        if (states.contains(name)) {
+            finalStates.add(name);
+            return true;
+        }else{
+            return false;
+        }
     }
 
     @Override
     public boolean setStart(String name) {
-        return false;
+         if (states.contains(name)) {
+            this.startState = name;
+            return true;
+        }else{
+            return false;
+        }
     }
 
     @Override
     public void addSigma(char symbol) {
-
+        alphabet.add(symbol);
     }
 
     @Override
@@ -42,7 +68,7 @@ public class DFA implements DFAInterface{
 
     @Override
     public Set<Character> getSigma() {
-        return Set.of();
+        return alphabet;
     }
 
     @Override
@@ -52,11 +78,11 @@ public class DFA implements DFAInterface{
 
     @Override
     public boolean isFinal(String name) {
-        return false;
+        return finalStates.contains(name);
     }
 
     @Override
     public boolean isStart(String name) {
-        return false;
+        return name.equals(startState);
     }
 }
