@@ -5,25 +5,30 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 public class DFA implements DFAInterface{
 
-    private Set<String> states;
+    private Map<String, DFAState> states;
     private Set<Character> alphabet;
     private String startState;
     private Set<String> finalStates;
-    private Map<String, Map<Character, String>> transitions;
     
     public DFA(){
-        this.states = new HashSet<>();
+        this.states = new HashMap<>();
         this.alphabet = new HashSet<>();
         this.finalStates = new HashSet<>();
-        this.transitions = new HashMap<>();
     }
 
     @Override
     public boolean addTransition(String fromState, String toState, char onSymb) {
-        return false;
+        DFAState from = states.get(fromState);
+        DFAState to = states.get(toState);
+        
+        if (from == null || to == null || !alphabet.contains(onSymb)) {
+            return false;
+        }
+        
+        from.addTransition(onSymb, to);
+        return true;
     }
 
     @Override
@@ -33,12 +38,16 @@ public class DFA implements DFAInterface{
 
     @Override
     public boolean addState(String name) {
-        return states.add(name);
+        if (states.containsKey(name)) {
+            return false; 
+        }
+        states.put(name, new DFAState(name));
+        return true;
     }
 
     @Override
     public boolean setFinal(String name) {
-        if (states.contains(name)) {
+        if (states.containsKey(name)) {
             finalStates.add(name);
             return true;
         }else{
@@ -48,7 +57,7 @@ public class DFA implements DFAInterface{
 
     @Override
     public boolean setStart(String name) {
-         if (states.contains(name)) {
+         if (states.containsKey(name)) {
             this.startState = name;
             return true;
         }else{
