@@ -1,21 +1,26 @@
 package fa.dfa;
 
 import fa.State;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 public class DFA implements DFAInterface{
 
     private Map<String, DFAState> states;
     private Set<Character> alphabet;
     private String startState;
     private Set<String> finalStates;
-    
+    private List<String> stateOrder; // List to store the order of added states
+    private List<Character> symbolOrder; // List to store the order of added symbols
+    private List<String> finalStateOrder; // List to store the order of final states
+
     public DFA(){
         this.states = new HashMap<>();
         this.alphabet = new HashSet<>();
         this.finalStates = new HashSet<>();
+        this.stateOrder = new ArrayList<>(); // Initialize the state order list
+        this.symbolOrder = new ArrayList<>(); // Initialize the symbol order list
+        this.finalStateOrder = new ArrayList<>(); // Initialize the final state order list
     }
 
     @Override
@@ -82,6 +87,7 @@ public class DFA implements DFAInterface{
             return false; 
         }
         states.put(name, new DFAState(name));
+        stateOrder.add(name); // Add state to the list to track insertion order
         return true;
     }
 
@@ -89,8 +95,11 @@ public class DFA implements DFAInterface{
     public boolean setFinal(String name) {
         if (states.containsKey(name)) {
             finalStates.add(name);
+            if (!finalStateOrder.contains(name)) { // Ensure no duplicates in the list
+                finalStateOrder.add(name); // Track final state insertion order
+            }
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -107,11 +116,19 @@ public class DFA implements DFAInterface{
 
     @Override
     public void addSigma(char symbol) {
-        alphabet.add(symbol);
+        if (!alphabet.contains(symbol)) { // Ensure no duplicates
+            alphabet.add(symbol);
+            symbolOrder.add(symbol); // Track the order of symbol insertion
+        }
     }
 
     @Override
     public boolean accepts(String s) {
+        // Check if the start state is null (no states or no start state set)
+        if (startState == null) {
+            return false;  // Return false if there's no start state
+        }
+
         DFAState currentState = states.get(startState);
 
         for (char symbol : s.toCharArray()) {
@@ -143,5 +160,66 @@ public class DFA implements DFAInterface{
     @Override
     public boolean isStart(String name) {
         return startState != null && startState.equals(name);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        // Adding states (Q) in the order they were added
+        sb.append("Q = { ");
+        for (String stateName : stateOrder) {  // Use stateOrder list
+            sb.append(stateName).append(" ");
+        }
+        sb.deleteCharAt(sb.length() - 1); // Remove the trailing space
+        sb.append(" }\n");  // Add space before closing brace
+
+        // Adding alphabet (Sigma)
+        sb.append("Sigma = { ");
+        for (Character symbol : symbolOrder) { // Use symbolOrder list
+            sb.append(symbol).append(" ");
+        }
+        if (!symbolOrder.isEmpty()) {
+            sb.deleteCharAt(sb.length() - 1); // Remove the trailing space if Sigma is not empty
+        }
+        sb.append(" }\n");
+
+        // Adding transitions (delta) only if the alphabet (Sigma) is not empty
+        sb.append("delta =\n");
+        if (!symbolOrder.isEmpty()) {  // Only add delta if Sigma has symbols
+            sb.append("\t\t"); // Add two tabs for column headers alignment
+            for (Character symbol : symbolOrder) { // Use symbolOrder list
+                sb.append(symbol).append("\t");
+            }
+            sb.append("\n");
+
+            // Iterate over states in the order they were added
+            for (String stateName : stateOrder) {  // Use stateOrder list
+                DFAState state = states.get(stateName);
+                sb.append("\t").append(state.getName()).append("\t"); // Print the state name
+                for (Character symbol : symbolOrder) { // Use symbolOrder list
+                    DFAState nextState = state.getTransition(symbol);
+                    if (nextState != null) {
+                        sb.append(nextState.getName()).append("\t");
+                    } else {
+                        sb.append("-\t"); // Handle missing transitions
+                    }
+                }
+                sb.append("\n");
+            }
+        }
+
+        // Adding start state (q0)
+        sb.append("q0 = ").append(startState).append("\n");
+
+        // Adding final states (F)
+        sb.append("F = { ");
+        for (String finalState : finalStateOrder) {  // Use finalStateOrder list
+            sb.append(finalState).append(" ");
+        }
+        sb.deleteCharAt(sb.length() - 1); // Remove the trailing space
+        sb.append("}");
+
+        return sb.toString();
     }
 }

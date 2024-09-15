@@ -8,6 +8,9 @@ import org.junit.Test;
 
 import fa.dfa.DFA;
 
+import fa.dfa.DFAState;
+
+
 public class DFATest {
 	
 	
@@ -370,8 +373,6 @@ public void test3_4() {
 	System.out.println("dfa3 toString pass");
 }
 
-
-
 @Test
 public void test3_5() {
 	DFA dfa = dfa3();
@@ -405,5 +406,303 @@ public void test3_6() {
 	
 	System.out.println("dfa3Swap accept pass");
 }
-	
+
+//------------------- dfa4 tests ----------------------//
+private DFA dfa4() {
+	DFA dfa = new DFA();
+	return dfa;  // No states or transitions
+}
+	@Test
+	public void test4_1() {
+		DFA dfa = dfa4();
+		System.out.println("dfa4 instantiation pass");
+	}
+
+	@Test
+	public void test4_2() {
+		DFA dfa = dfa4();
+		// Check if no states, no alphabet, and no start state are set
+		assertNull(dfa.getState("A"));  // No state "A" should exist
+		assertTrue(dfa.getSigma().isEmpty());  // Alphabet should be empty
+		assertFalse(dfa.isStart("A"));  // No start state
+		System.out.println("dfa4 correctness pass");
+	}
+
+	@Test
+	public void test4_3() {
+		DFA dfa = dfa4();
+		assertFalse(dfa.accepts(""));  // Empty string should not be accepted
+		assertFalse(dfa.accepts("0"));  // Any input should be rejected
+		System.out.println("dfa4 accept pass");
+	}
+
+	@Test
+	public void test4_4() {
+		DFA dfa = dfa4();
+		String dfaStr = dfa.toString();
+		String expStr = "Q = { }\nSigma = { }\ndelta =\nq0 = null\nF = { }";
+		assertTrue(dfaStr.replaceAll("\\s", "").equals(expStr.replaceAll("\\s", "")));
+		System.out.println("dfa4 toString pass");
+	}
+
+	@Test
+	public void test4_5() {
+		DFA dfa = dfa4();
+		DFA dfaSwap = dfa.swap('1', '0');
+		assertTrue(dfa != dfaSwap);  // Ensure the DFA is still a separate object after swap
+		System.out.println("dfa4Swap instantiation pass");
+	}
+
+	@Test
+	public void test4_6() {
+		DFA dfa = dfa4();
+		assertFalse(dfa.addTransition("A", "B", '0'));  // Adding transition should fail since no states exist
+		System.out.println("dfa4 transition pass");
+	}
+
+	//------------------- dfa4 tests ----------------------//
+	private DFA dfa5() {
+		DFA dfa = new DFA();
+		dfa.addState("A");   // Add one state "A"
+		dfa.setStart("A");   // Set "A" as the start state
+		dfa.setFinal("A");   // Set "A" as the final state
+		return dfa;
+	}
+
+	@Test
+	public void test5_1() {
+		DFA dfa = dfa5();
+		System.out.println("dfa5 instantiation pass");
+	}
+
+	@Test
+	public void test5_2() {
+		DFA dfa = dfa5();
+		assertNotNull(dfa.getState("A"));     // State "A" exists
+		assertTrue(dfa.isStart("A"));         // "A" is the start state
+		assertTrue(dfa.isFinal("A"));         // "A" is the final state
+		assertTrue(dfa.getSigma().isEmpty()); // The alphabet should be empty (no symbols added)
+		System.out.println("dfa5 correctness pass");
+	}
+
+	@Test
+	public void test5_3() {
+		DFA dfa = dfa5();
+		assertTrue(dfa.accepts(""));   // Should accept the empty string
+		assertFalse(dfa.accepts("0")); // Should reject "0" (no transitions)
+		assertFalse(dfa.accepts("1")); // Should reject "1" (no transitions)
+		System.out.println("dfa5 accept pass");
+	}
+
+	@Test
+	public void test5_4() {
+		DFA dfa = dfa5();
+		String dfaStr = dfa.toString();
+		String expStr = "Q = { A }\nSigma = { }\ndelta =\nq0 = A\nF = { A }";
+		assertTrue(dfaStr.replaceAll("\\s", "").equals(expStr.replaceAll("\\s", "")));
+		System.out.println("dfa5 toString pass");
+	}
+
+	@Test
+	public void test5_5() {
+		DFA dfa = dfa5();
+		DFA dfaSwap = dfa.swap('1', '0');   // Try to swap symbols even though there are none
+		assertTrue(dfa != dfaSwap);         // Ensure it's still a different DFA object after swap
+		System.out.println("dfa5Swap instantiation pass");
+	}
+
+	@Test
+	public void test5_6() {
+		DFA dfa = dfa5();
+		assertFalse(dfa.addTransition("A", "B", '0')); // Should fail since "B" doesn't exist
+		System.out.println("dfa5 transition pass");
+	}
+
+	//------------------- dfa6 tests ----------------------//
+	private DFA dfa6() {
+		DFA dfa = new DFA();
+		dfa.addSigma('a');
+		dfa.addSigma('b');
+
+		// Adding states
+		dfa.addState("S");  // Start state
+		dfa.addState("A");  // Dead-end state
+		dfa.addState("F");  // Final state
+
+		// Set start and final states
+		dfa.setStart("S");
+		dfa.setFinal("F");
+
+		// Add transitions
+		dfa.addTransition("S", "A", 'a');
+		dfa.addTransition("S", "S", 'b');  // Loop on S with 'b'
+
+		// "A" has no outgoing transitions, it's a dead-end
+		return dfa;
+	}
+
+	@Test
+	public void test6_1() {
+		DFA dfa = dfa6();
+		System.out.println("dfa6 instantiation pass");
+	}
+
+	@Test
+	public void test6_2() {
+		DFA dfa = dfa6();
+		// Check that states exist
+		assertNotNull(dfa.getState("S"));
+		assertNotNull(dfa.getState("A"));
+		assertNotNull(dfa.getState("F"));
+
+		// Check start and final state correctness
+		assertTrue(dfa.isStart("S"));
+		assertTrue(dfa.isFinal("F"));
+		System.out.println("dfa6 correctness pass");
+	}
+
+	@Test
+	public void test6_3() {
+		DFA dfa = dfa6();
+
+		// Test acceptance behavior
+		assertFalse(dfa.accepts(""));    // Empty string should not be accepted (since start != final)
+		assertFalse(dfa.accepts("a"));   // Should reach dead-end "A", should not accept
+		assertFalse(dfa.accepts("b"));   // Should stay in start state "S", but "S" is not final
+		assertFalse(dfa.accepts("aa"));  // Should not accept since "A" has no transitions
+		System.out.println("dfa6 accept pass");
+	}
+
+	@Test
+	public void test6_4() {
+		DFA dfa = dfa6();
+
+		// Test toString correctness
+		String dfaStr = dfa.toString();
+		String expStr = "Q = { S A F }\n"
+				+ "Sigma = { a b }\n"
+				+ "delta =\n"
+				+ "\ta\tb\t\n"
+				+ "S\tA\tS\t\n"
+				+ "A\t-\t-\t\n"
+				+ "F\t-\t-\t\n"
+				+ "q0 = S\n"
+				+ "F = { F }";
+
+		assertTrue(dfaStr.replaceAll("\\s", "").equals(expStr.replaceAll("\\s", "")));
+		System.out.println("dfa6 toString pass");
+	}
+
+	@Test
+	public void test6_5() {
+		DFA dfa = dfa6();
+		DFA dfaSwap = dfa.swap('a', 'b');
+		assertTrue(dfa != dfaSwap);
+
+		// Ensure transitions swapped, cast to DFAState
+		assertNotNull(((DFAState) dfaSwap.getState("S")).getTransition('b'));  // 'b' should now lead to A
+		assertEquals("A", ((DFAState) dfaSwap.getState("S")).getTransition('b').getName());  // Check that the swap worked
+		assertEquals("S", ((DFAState) dfaSwap.getState("S")).getTransition('a').getName());  // Now loops on 'a'
+
+		System.out.println("dfa6 swap pass");
+	}
+
+	@Test
+	public void test6_6() {
+		DFA dfa = dfa6();
+		assertTrue(dfa.addTransition("F", "A", 'a')); // Transition should be allowed
+		System.out.println("dfa6 transition pass");
+	}
+
+	//------------------- dfa7 tests ----------------------//
+	private DFA dfa7() {
+		DFA dfa = new DFA();
+		dfa.addSigma('a');
+		dfa.addSigma('b');
+
+		// Adding states
+		dfa.addState("S");  // Start state
+		dfa.addState("A");  // State "A"
+
+		// Set start and final states
+		dfa.setStart("S");
+		dfa.setFinal("A");  // Set "A" as the final state
+
+		// Add transitions
+		dfa.addTransition("S", "A", 'a');  // Transition on 'a'
+		// No transition on 'b'
+
+		return dfa;
+	}
+
+	@Test
+	public void test7_1() {
+		DFA dfa = dfa7();
+		System.out.println("dfa7 instantiation pass");
+	}
+
+	@Test
+	public void test7_2() {
+		DFA dfa = dfa7();
+
+		// Trying to add a transition to a nonexistent state "X"
+		assertFalse(dfa.addTransition("S", "X", 'a'));  // "X" doesn't exist, so it should return false
+
+		// Trying to add a transition from a nonexistent state "Y"
+		assertFalse(dfa.addTransition("Y", "S", 'b'));  // "Y" doesn't exist, so it should return false
+
+		// Ensure the DFA still works with valid transitions (these already exist)
+		System.out.println("dfa7 correctness pass");
+	}
+
+	@Test
+	public void test7_3() {
+		DFA dfa = dfa7();
+
+		// Ensure the DFA does not accept invalid transitions
+		assertFalse(dfa.accepts("b"));    // No transition on 'b' from "S"
+		assertTrue(dfa.accepts("a"));     // Valid transition from "S" to "A" on 'a'
+
+		System.out.println("dfa7 accept pass");
+	}
+
+	@Test
+	public void test7_4() {
+		DFA dfa = dfa7();
+
+		// Test toString correctness (final state A already set in dfa7)
+		String dfaStr = dfa.toString();
+		String expStr = "Q = { S A }\n"
+				+ "Sigma = { a b }\n"
+				+ "delta =\n"
+				+ "\ta\tb\t\n"
+				+ "S\tA\t-\t\n"
+				+ "A\t-\t-\t\n"
+				+ "q0 = S\n"
+				+ "F = { A }";  // Final state is A
+
+		assertTrue(dfaStr.replaceAll("\\s", "").equals(expStr.replaceAll("\\s", "")));
+		System.out.println("dfa7 toString pass");
+	}
+
+	@Test
+	public void test7_5() {
+		DFA dfa = dfa7();
+		DFA dfaSwap = dfa.swap('a', 'b');
+		assertTrue(dfa != dfaSwap);
+
+		// Ensure transitions swapped, cast to DFAState
+		assertNotNull(((DFAState) dfaSwap.getState("S")).getTransition('b'));  // 'b' should now lead to A
+		assertEquals("A", ((DFAState) dfaSwap.getState("S")).getTransition('b').getName());  // Check that the swap worked
+
+		System.out.println("dfa7 swap pass");
+	}
+
+	@Test
+	public void test7_6() {
+		DFA dfa = dfa7();
+		assertFalse(dfa.addTransition("S", "X", 'a')); // "X" does not exist
+		assertFalse(dfa.addTransition("Y", "S", 'b')); // "Y" does not exist
+		System.out.println("dfa7 transition pass");
+	}
 }
